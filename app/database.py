@@ -11,3 +11,15 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
+
+
+#  Dependency for FASTAPI create a db session
+
+def get_db():
+    db = SessionLocal()  # create a dbsession
+    try:
+        # Request and response delivered during yield statement allowing functions access to db session
+        yield db
+    finally:
+        # After response close the db session
+        db.close()
