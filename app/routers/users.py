@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, HTTPException
 from sqlalchemy import exc
 from sqlalchemy.orm import Session
 
@@ -22,7 +22,8 @@ def create_user(user: UserCreate, db_session: Session = Depends(get_db)):
     try:
         db_session.commit()
     except exc.SQLAlchemyError as e:
-        return {'error': e}
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f'Unexpected problem please check the request and try again')
 
     db_session.refresh(new_user)
 
