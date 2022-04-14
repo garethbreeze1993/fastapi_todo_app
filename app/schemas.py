@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional
 
 from pydantic import BaseModel, EmailStr
@@ -25,3 +25,26 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     user_id: Optional[str] = None
+
+
+class TaskResponse(BaseModel):
+    title: str
+    description: str
+    deadline: Optional[date] = None
+    completed: bool
+    last_update: datetime
+    owner_id: int
+    owner: UserResponse
+
+    class Config:
+        orm_mode = True
+
+
+class TaskCreate(BaseModel):
+    title: str
+    description: str
+    deadline: Optional[date] = None
+
+
+class TaskComplete(BaseModel):
+    completed: bool
