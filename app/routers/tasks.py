@@ -1,6 +1,5 @@
-from typing import List
-
 from fastapi import APIRouter, status, Depends, HTTPException, Response
+from fastapi_pagination import paginate, Page
 from sqlalchemy import exc
 from sqlalchemy.orm import Session
 
@@ -11,13 +10,13 @@ from app.schemas import TaskResponse, TaskCreate, TaskComplete
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 
-@router.get("/", response_model=List[TaskResponse])
+@router.get("/", response_model=Page[TaskResponse])
 def get_tasks_for_user(db_session: Session = Depends(get_db)):
     owner_id = 3  # Hardcode a user to check as will add login/logout functionality later
     tasks = db_session.query(models.Task)\
         .filter(models.Task.owner_id == owner_id)\
         .all()
-    return tasks
+    return paginate(tasks)
 
 
 @router.get("/{id_}", response_model=TaskResponse)
