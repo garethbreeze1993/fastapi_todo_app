@@ -28,6 +28,7 @@ class TokenData(BaseModel):
 
 
 class TaskResponse(BaseModel):
+    id: int
     title: str
     description: str
     deadline: Optional[date] = None
