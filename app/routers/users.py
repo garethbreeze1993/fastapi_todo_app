@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app import models
+from app import oauth2
 from app.schemas import UserCreate, UserResponse
 from app.utils import get_password_hash
 
@@ -28,3 +29,8 @@ def create_user(user: UserCreate, db_session: Session = Depends(get_db)):
     db_session.refresh(new_user)
 
     return new_user
+
+
+@router.get("/get_user_data")
+def get_logged_in_user_data(current_user: 'models.User' = Depends(oauth2.get_current_user)):
+    return {'email': current_user.email}
