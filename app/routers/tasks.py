@@ -5,14 +5,16 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app import models
+from app import oauth2
 from app.schemas import TaskResponse, TaskCreate, TaskComplete
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 
 @router.get("/", response_model=Page[TaskResponse])
-def get_tasks_for_user(db_session: Session = Depends(get_db)):
-    owner_id = 3  # Hardcode a user to check as will add login/logout functionality later
+def get_tasks_for_user(db_session: Session = Depends(get_db),
+                       current_user: 'models.User' = Depends(oauth2.get_current_user)):
+    owner_id = current_user.id
     tasks = db_session.query(models.Task)\
         .filter(models.Task.owner_id == owner_id)\
         .all()
@@ -20,8 +22,9 @@ def get_tasks_for_user(db_session: Session = Depends(get_db)):
 
 
 @router.get("/{id_}", response_model=TaskResponse)
-def get_task(id_: int, db_session: Session = Depends(get_db)):
-    owner_id = 3  # Hardcode a user to check as will add login/logout functionality later
+def get_task(id_: int, db_session: Session = Depends(get_db),
+             current_user: 'models.User' = Depends(oauth2.get_current_user)):
+    owner_id = current_user.id
 
     task = db_session.query(models.Task)\
         .filter(models.Task.id == id_,
@@ -35,10 +38,11 @@ def get_task(id_: int, db_session: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=TaskResponse)
-def create_task(task_input: TaskCreate, db_session: Session = Depends(get_db)):
+def create_task(task_input: TaskCreate, db_session: Session = Depends(get_db),
+                current_user: 'models.User' = Depends(oauth2.get_current_user)):
     task_dict = task_input.dict()
     task = models.Task(**task_dict)
-    task.owner_id = 3
+    task.owner_id = current_user.id
 
     db_session.add(task)
 
@@ -54,9 +58,10 @@ def create_task(task_input: TaskCreate, db_session: Session = Depends(get_db)):
 
 
 @router.delete("/{id_}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_task(id_: int, db_session: Session = Depends(get_db)):
+def delete_task(id_: int, db_session: Session = Depends(get_db),
+                current_user: 'models.User' = Depends(oauth2.get_current_user)):
     task = db_session.query(models.Task).get(id_)
-    owner_id = 3
+    owner_id = current_user.id
 
     if not task:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'Task not found id={id_}')
@@ -76,9 +81,10 @@ def delete_task(id_: int, db_session: Session = Depends(get_db)):
 
 
 @router.put("/{id_}", response_model=TaskResponse)
-def update_task(id_: int, task_input: TaskCreate, db_session: Session = Depends(get_db)):
+def update_task(id_: int, task_input: TaskCreate, db_session: Session = Depends(get_db),
+                current_user: 'models.User' = Depends(oauth2.get_current_user)):
     task = db_session.query(models.Task).get(id_)
-    owner_id = 3
+    owner_id = current_user.id
 
     if not task:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'Task not found id={id_}')
@@ -103,9 +109,10 @@ def update_task(id_: int, task_input: TaskCreate, db_session: Session = Depends(
 
 
 @router.put("/complete/{id_}", response_model=TaskResponse)
-def complete_task(id_: int, task_input: TaskComplete, db_session: Session = Depends(get_db)):
+def complete_task(id_: int, task_input: TaskComplete, db_session: Session = Depends(get_db),
+                  current_user: 'models.User' = Depends(oauth2.get_current_user)):
     task = db_session.query(models.Task).get(id_)
-    owner_id = 3
+    owner_id = current_user.id
 
     if not task:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'Task not found id={id_}')
