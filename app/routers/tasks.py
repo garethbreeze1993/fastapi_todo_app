@@ -37,7 +37,7 @@ def get_task(id_: int, db_session: Session = Depends(get_db),
     return task
 
 
-@router.post("/", response_model=TaskResponse)
+@router.post("/", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
 def create_task(task_input: TaskCreate, db_session: Session = Depends(get_db),
                 current_user: 'models.User' = Depends(oauth2.get_current_user)):
     task_dict = task_input.dict()
