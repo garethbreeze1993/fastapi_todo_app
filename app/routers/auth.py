@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app import models
 from app import oauth2
-from app.schemas import Token
+from app.schemas import AccessToken, Token, RefreshToken
 from app.utils import verify_password
 
 router = APIRouter(tags=["Authentication"])
@@ -34,4 +34,15 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db_session: Session 
         )
     # create token and return it
     access_token = oauth2.create_access_token(data=dict(user_id=user.id))
+    refresh_token = oauth2.create_refresh_token(data=dict(user_id=user.id))
+    return {'access_token': access_token, "token_type": "bearer", "refresh_token": refresh_token}
+
+
+@router.post('/refresh', response_model=AccessToken)
+def refresh(token: RefreshToken):
+    credentials_exception = HTTPException(status.HTTP_401_UNAUTHORIZED, detail='Could not validate credentials',
+                                          headers={"WWW-AUTHENTICATE": "BEARER"})
+
+    user_id = oauth2.verify_refresh_token(token=token.refresh_token, credentials_exception=credentials_exception)
+    access_token = oauth2.create_access_token(data=dict(user_id=user_id))
     return {'access_token': access_token, "token_type": "bearer"}
