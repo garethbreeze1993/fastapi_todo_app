@@ -5,15 +5,16 @@ from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
+from app.config import settings
 from app.database import get_db
 from app import models
 from app.schemas import TokenData
 
-SECRET_KEY = "d6872f3de23291558ff27dd0986df296b0bede71ab2d31dac334822d29a882d1"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 1
-REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
-JWT_REFRESH_SECRET_KEY = "e598f78775d038c937cd86020a2fc185d8131fe9f5002a165e48a642ef0fc171"
+SECRET_KEY = settings.secret_key
+ALGORITHM = settings.algorithm
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
+REFRESH_TOKEN_EXPIRE_MINUTES = settings.refresh_token_expire_minutes
+JWT_REFRESH_SECRET_KEY = settings.refresh_secret_key
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")

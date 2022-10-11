@@ -4,7 +4,7 @@ import pytest
 from app import models
 from app.database import Base, get_db
 from app.main import app
-from app.oauth2 import create_access_token
+from app.oauth2 import create_access_token, create_refresh_token
 from tests.database import TestingSessionLocal, engine
 
 
@@ -140,3 +140,14 @@ def create_test_tasks(test_user, get_test_db_session, test_user_2):
         .all()
 
     return task_query
+
+
+@pytest.fixture
+def refresh_token(test_user):
+    """
+    Gives us a JWT refresh token so we can test the refersh token functionality
+    :param test_user: Pycharm fixture which creates a user and returns a dict with user information
+    :return:
+    """
+    refresh_token = create_refresh_token(data=dict(user_id=test_user['id']))
+    return refresh_token
