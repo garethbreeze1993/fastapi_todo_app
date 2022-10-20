@@ -4,7 +4,7 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
-
+from app.config import settings
 from app.models import Base  # Need to import from here so alembic can read from the models file
 
 # this is the Alembic Config object, which provides
@@ -12,11 +12,9 @@ from app.models import Base  # Need to import from here so alembic can read from
 config = context.config
 
 # Override sqlalchemyurl from alembic.ini file so can use env variables not hardcoded when env is set up
-config.set_main_option("sqlalchemy.url", "postgresql://gareth:MFbblUXiEj@localhost:5432/fastapi_todo")
-
-# config.set_main_option("sqlalchemy.url",
-#                        f"postgresql://{settings.database_username}:{settings.database_password}"
-#                        f"@{settings.database_hostname}:{settings.database_port}/{settings.database_name}")
+config.set_main_option("sqlalchemy.url",
+                       f"postgresql://{settings.database_username}:{settings.database_password}"
+                       f"@{settings.database_hostname}:{settings.database_port}/{settings.database_name}")
 
 
 # Interpret the config file for Python logging.
